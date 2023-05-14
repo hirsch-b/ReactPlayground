@@ -1,34 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { Outlet } from "react-router-dom";
+import Menu from "./Menu";
+import { useMemo, useState } from "react";
+import { LanguageContext, Translation } from "./Language/locale";
+import { en_translations } from "./Language/en";
+import { fr_translations } from "./Language/fr";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+const translation_strings: Translation = { fr: fr_translations, en: en_translations };
+interface LanguageContextProps {
+    language: string;
+    translations: any;
+    setLanguage: (lang: string) => void;
 }
 
-export default App
+let detectedLanguage = (localStorage.getItem("language") || navigator.language || "en")
+    .split("-")
+    .at(0);
+
+if (!(detectedLanguage! in translation_strings)) {
+    detectedLanguage = "en";
+}
+
+export default function App() {
+    const [currentLanguage, setCurrentLanguage] = useState<string>(detectedLanguage!);
+    const [currentTranslations, setCurrentTranslations] = useState(
+        translation_strings[detectedLanguage!]
+    );
+
+    const value = useMemo(
+        () => ({
+            language: detectedLanguage!,
+            translations: (str: string) =>
+                currentTranslations[str] ||
+                translation_strings["en"][str] ||
+                <>&lt;MissingTranslation <code>{str}</code>&gt;</>,
+            setLanguage: (lang: string) => {
+                setCurrentLanguage(lang);
+                setCurrentTranslations(translation_strings[lang]);
+                localStorage.setItem("language", lang);
+            },
+        }),
+        [{ translations: currentTranslations }]
+    );
+
+    return (
+        <>
+            <main>
+                <LanguageContext.Provider value={value as LanguageContextProps}>
+                    <Menu />
+                    <Outlet />
+                </LanguageContext.Provider>
+            </main>
+        </>
+    );
+}

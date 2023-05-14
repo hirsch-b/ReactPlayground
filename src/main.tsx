@@ -1,26 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-import App from './App';
-import './index.css';
-import PlaygroundSetter from './PlaygroundSetter';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import App from "./App";
+import Home from "./Home";
+import "./index.scss";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-  },
-  {
-    path: "/playground/setter",
-    element: <PlaygroundSetter />,
-  },
-]);
-
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route element={<App />}>
+                    <Route path="/" element={<Home />} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    </React.StrictMode>
+);
